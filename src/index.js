@@ -1,12 +1,17 @@
 const express = require('express');
+const userRouter = require('./routes/user');
+require('./db/mongoose');
 
 const app = express();
-const port = process.env.PORT
+const port = process.env.PORT;
+
+app.use(express.json());
+app.use(userRouter);
 
 app.get('/', (req, res) => {
-  res.send('Ready to roll')
+  res.send('Ready to roll');
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log('Server is running on ' + port);
 });
