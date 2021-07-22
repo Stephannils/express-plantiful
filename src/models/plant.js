@@ -6,6 +6,16 @@ const plantSchema = mongoose.Schema({
     required: true,
     trim: true,
   },
+  waterInterval: {
+    type: Number,
+    required: false,
+    trim: true,
+    default: 7,
+  },
+  inCollection: {
+    type: Boolean,
+    required: true,
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,

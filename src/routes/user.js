@@ -23,7 +23,7 @@ router.post('/users', async (req, res) => {
     await user.save();
     res.status(201).send({user, token});
   } catch (err) {
-    res.status(400).send();
+    res.status(400).send(err);
   }
 });
 
@@ -42,7 +42,7 @@ router.post('/users/login', async (req, res) => {
     const token = await user.generateAuthToken();
     res.send({user, token});
   } catch (err) {
-    res.status(400).send();
+    res.status(400).send(err);
   }
 });
 
@@ -53,9 +53,9 @@ router.get('/users/me', auth, async (req, res) => {
 
 // Update profile
 /* 
-  "name": "Stephan",
-  "email": "stephansemail@fantasyproviderofchoice.com",
-  "password": "Password123"
+  "name": "new Name",
+  "email": "stephansnewemail@fantasyproviderofchoice.com",
+  "password": "newPassword123"
 */
 router.post('/users/me', auth, async (req, res) => {
   const allowedUpdates = ['email', 'password', 'name'];
@@ -72,7 +72,7 @@ router.post('/users/me', auth, async (req, res) => {
     await req.user.save();
     res.send(req.user);
   } catch (err) {
-    res.status(400).send();
+    res.status(400).send(err);
   }
 });
 
@@ -82,7 +82,7 @@ router.get('/users/me/deleteUser', auth, async (req, res) => {
     await req.user.remove();
     res.send(req.user);
   } catch (err) {
-    res.status(500).send();
+    res.status(500).send(err);
   }
 });
 
@@ -93,7 +93,7 @@ router.get('/users/logout', auth, async (req, res) => {
     await req.user.save();
     res.send();
   } catch (err) {
-    req.status(500).send();
+    req.status(500).send(err);
   }
 });
 

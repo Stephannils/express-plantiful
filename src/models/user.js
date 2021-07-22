@@ -38,6 +38,12 @@ const userSchema = mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.virtual('plants', {
+  ref: 'Plant',
+  localField: '_id',
+  foreignField: 'owner',
+});
+
 userSchema.statics.findByCreds = async (email, password) => {
 
   const user = await User.findOne({email});
