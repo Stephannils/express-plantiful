@@ -57,7 +57,7 @@ router.get('/users/me', auth, async (req, res) => {
   "email": "stephansnewemail@fantasyproviderofchoice.com",
   "password": "newPassword123"
 */
-router.post('/users/me', auth, async (req, res) => {
+router.patch('/users/me', auth, async (req, res) => {
   const allowedUpdates = ['email', 'password', 'name'];
   const updates = Object.keys(req.body);
   const isValid = updates.every((update) => allowedUpdates.includes(update));
@@ -77,7 +77,7 @@ router.post('/users/me', auth, async (req, res) => {
 });
 
 // Delete user
-router.get('/users/me/deleteUser', auth, async (req, res) => {
+router.delete('/users/me/deleteUser', auth, async (req, res) => {
   try {
     await req.user.remove();
     res.send(req.user);

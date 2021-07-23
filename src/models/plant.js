@@ -16,12 +16,23 @@ const plantSchema = mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  image: {
+    type: Buffer,
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'User',
   },
 },{ timestamps: true});
+
+plantSchema.methods.toJSON = function() {
+  const plant = this.toObject();
+
+  delete plant.image;
+
+  return plant;
+};
 
 const Plant = mongoose.model('Plant', plantSchema);
 

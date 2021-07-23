@@ -1,6 +1,8 @@
 const express = require('express');
 const Plant = require('../models/plant');
 const auth = require ('../middleware/auth');
+const upload = require('../middleware/upload');
+const resize = require('../middleware/resize');
 
 const router = new express.Router();
 
@@ -25,7 +27,7 @@ router.post('/plants', auth, async (req, res) => {
 });
 
 // Delete plant
-router.get('/plants/:id', auth, async (req, res) => {
+router.delete('/plants/:id', auth, async (req, res) => {
   try {
     const plant = await Plant.findOneAndDelete({_id: req.params.id, owner: req.user._id});
 
@@ -70,6 +72,21 @@ router.patch('/plants/:id', auth, async (req, res) => {
   }
 });
 
+// Show plant by id
+router.get('/plants/:id', auth, async(req, res) => {
+  try {
+    const plant = await Plant.findOne({owner: req.user._id, _id: req.params.id});
+
+    if (!plant) {
+      res.status(404).send();
+    }
+
+    res.send(plant);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
 // Show plants
 router.get('/plants', auth, async (req, res) => {
   try {
@@ -82,6 +99,57 @@ router.get('/plants', auth, async (req, res) => {
     res.send(plants);
   } catch (err) {
     res.status(500).send(err);
+  }
+});
+
+// Upload plant picture
+router.post('/plants/:id/upload', auth, upload.single('image'), async (req, res) => {
+  try {
+    const image = await resize(req.file.buffer);
+    const plant = await Plant.findOne({owner: req.user._id, _id: req.params.id});
+
+    if (!plant) {
+      return res.status(404).send();
+    }
+
+    plant.image = image;
+    await plant.save();
+
+    res.send();
+  } catch (err) {
+    res.status(400).send(err);
+  }   
+});
+
+// Delete plant picture
+router.delete('/plants/:id/image', auth, async (req, res) => {
+  try {
+    const plant = await Plant.findOne({owner: req.user._id, _id: req.params.id});
+
+    if (!plant || !plant.image) {
+      return res.status(404).send();
+    }
+
+    plant.image = undefined;
+    await plant.save();
+    res.send();
+  } catch (err) {
+    res.status(500).send();
+  }
+}); 
+
+// Fetch plant picture by id
+router.get('/plants/:id/image', auth, async (req, res) => {
+  try {
+    const plant = await Plant.findOne({owner: req.user._id, _id: req.params.id});
+
+    if (!plant || !plant.image) {
+      res.status(404).send();
+    }
+
+    res.set('Content-Type', 'image/png').send(plant.image);
+  } catch (err) {
+    res.status(500).send();
   }
 });
 
