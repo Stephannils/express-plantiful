@@ -10,7 +10,8 @@ const router = new express.Router();
 /* 
   "name": "Plant",
   "waterInterval": 14,
-  "inCollection": false,  
+  "pests": true,
+  "inCollection": false
 */
 router.post('/plants', auth, async (req, res) => {
   const plant = new Plant({
@@ -46,10 +47,11 @@ router.delete('/plants/:id', auth, async (req, res) => {
   "name": "new Name",
   "waterInterval": 14,
   "inCollection": true,
+  "pests": false
 */
 router.patch('/plants/:id', auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ['name', 'waterInterval', 'inCollection'];
+  const allowedUpdates = ['name', 'waterInterval', 'inCollection', 'notes', 'pests']; // Notes need to be addressed separately
   const isValid = updates.every(update => allowedUpdates.includes(update));
 
   if (!isValid) {
@@ -78,7 +80,7 @@ router.get('/plants/:id', auth, async(req, res) => {
     const plant = await Plant.findOne({owner: req.user._id, _id: req.params.id});
 
     if (!plant) {
-      res.status(404).send();
+      return res.status(404).send();
     }
 
     res.send(plant);
@@ -134,7 +136,7 @@ router.delete('/plants/:id/image', auth, async (req, res) => {
     await plant.save();
     res.send();
   } catch (err) {
-    res.status(500).send();
+    res.status(500).send(err);
   }
 }); 
 
@@ -144,12 +146,49 @@ router.get('/plants/:id/image', auth, async (req, res) => {
     const plant = await Plant.findOne({owner: req.user._id, _id: req.params.id});
 
     if (!plant || !plant.image) {
-      res.status(404).send();
+      return res.status(404).send();
     }
 
     res.set('Content-Type', 'image/png').send(plant.image);
   } catch (err) {
-    res.status(500).send();
+    res.status(500).send(err);
+  }
+});
+
+// Add note to plant
+router.post('/plants/:id/notes', auth, async (req, res) => {
+  try {
+    const plant = await Plant.findOne({owner: req.user._id, _id: req.params.id});
+
+    if (!plant) {
+      return res.status(404).send();
+    }
+
+    plant.notes.push(req.body);
+
+    await plant.save();
+    res.send(plant);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
+// Delete note by id
+router.delete('/plants/:id/:noteId', auth, async (req, res) => {
+  try {
+    const plant = await Plant.findOne({owner: req.user._id, _id: req.params.id});
+
+    if (!plant) {
+      return res.status(404).send();
+    }
+
+    plant.notes.remove(req.params.noteId);
+
+    await plant.save();
+
+    res.send(plant);
+  } catch(err) {
+    res.status(500).send(err);
   }
 });
 

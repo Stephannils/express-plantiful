@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const noteSchema = require('./note');
 
 const plantSchema = mongoose.Schema({
   name: {
@@ -19,11 +20,16 @@ const plantSchema = mongoose.Schema({
   image: {
     type: Buffer,
   },
+  notes: [noteSchema],
+  pests: {
+    type: Boolean,
+    default: false,
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'User',
-  },
+  }
 },{ timestamps: true});
 
 plantSchema.methods.toJSON = function() {
